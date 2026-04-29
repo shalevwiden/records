@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { images } from "../assets/images";
 
 function SocialIcon({
   href,
@@ -23,7 +24,7 @@ export default function SiteFooter() {
       <div className="landing-footer-inner">
         <div>
           <Link to="/" className="landing-brand">
-            <span className="landing-logo" aria-hidden />
+            <img className="landing-logo-image" src={images.logos.small} alt="Records logo" />
             <span className="landing-brand-text">Records</span>
           </Link>
           <p className="landing-footer-tagline">

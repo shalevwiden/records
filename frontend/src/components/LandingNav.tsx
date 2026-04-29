@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { images } from "../assets/images";
 
 export default function LandingNav() {
   const { token } = useAuth();
@@ -9,7 +10,7 @@ export default function LandingNav() {
     <header className="landing-nav-wrap">
       <nav className="landing-nav" aria-label="Primary">
         <Link to="/" className="landing-brand">
-          <span className="landing-logo" aria-hidden />
+          <img className="landing-logo-image" src={images.logos.small} alt="Records logo" />
           <span className="landing-brand-text">
             Records
             <small>Log and share albums and songs</small>

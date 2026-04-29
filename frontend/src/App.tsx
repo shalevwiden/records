@@ -8,6 +8,7 @@ import AboutPage from "./pages/AboutPage";
 import LibraryPage from "./pages/LibraryPage";
 import FeedPage from "./pages/FeedPage";
 import ProfilePage from "./pages/ProfilePage";
+import { images } from "./assets/images";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { ready, token } = useAuth();
@@ -22,7 +23,7 @@ function AppShell() {
     <div className="container">
       <div className="topbar">
         <Link to="/" className="brand" style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="logo" />
+          <img className="logo-image" src={images.logos.small} alt="Records logo" />
           <div>
             <div>Records</div>
             <div className="muted" style={{ fontSize: 12, fontWeight: 650 }}>

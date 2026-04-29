@@ -4,30 +4,22 @@ import LandingNav from "../components/LandingNav";
 import SiteFooter from "../components/SiteFooter";
 import "../landing.css";
 import { useAuth } from "../hooks/useAuth";
+import { albums } from "../assets/albums";
 
 const BOBBING_ALBUMS: {
   top: string;
   left: string;
   r: string;
   d: string;
-  bg: string;
+  albumIndex: number;
 }[] = [
-  { top: "8%", left: "4%", r: "-12deg", d: "0s", bg: "linear-gradient(145deg,#1a2a4a,#3d6b9a)" },
-  { top: "18%", left: "78%", r: "8deg", d: "0.4s", bg: "linear-gradient(145deg,#3d1f2e,#c94b6a)" },
-  { top: "52%", left: "8%", r: "6deg", d: "0.8s", bg: "linear-gradient(145deg,#2a1f3d,#8b5cf6)" },
-  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", bg: "linear-gradient(145deg,#1e3a2f,#34d399)" },
-  { top: "28%", left: "58%", r: "14deg", d: "0.2s", bg: "linear-gradient(145deg,#4a3518,#f59e0b)" },
-  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", bg: "linear-gradient(145deg,#2d1b1b,#ef4444)" },
-  { top: "12%", left: "42%", r: "-5deg", d: "0.6s", bg: "linear-gradient(145deg,#0f2942,#38bdf8)" },
-];
-
-const POPULAR: { title: string; artist: string; bg: string }[] = [
-  { title: "The Dark Side of the Moon", artist: "Pink Floyd", bg: "linear-gradient(145deg,#1e293b,#6366f1)" },
-  { title: "Deadbeat", artist: "Tame Impala", bg: "linear-gradient(145deg,#422006,#f97316)" },
-  { title: "IGOR", artist: "Tyler, The Creator", bg: "linear-gradient(145deg,#3b0764,#e879f9)" },
-  { title: "Blonde", artist: "Frank Ocean", bg: "linear-gradient(145deg,#14532d,#86efac)" },
-  { title: "My Beautiful Dark Twisted Fantasy", artist: "Kanye West", bg: "linear-gradient(145deg,#7f1d1d,#f87171)" },
-  { title: "Random Access Memories", artist: "Daft Punk", bg: "linear-gradient(145deg,#0c4a6e,#38bdf8)" },
+  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumIndex: 0 },
+  { top: "18%", left: "78%", r: "8deg", d: "0.4s", albumIndex: 1 },
+  { top: "52%", left: "8%", r: "6deg", d: "0.8s", albumIndex: 2 },
+  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumIndex: 0 },
+  { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumIndex: 1 },
+  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumIndex: 2 },
+  { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumIndex: 0 },
 ];
 
 export default function HomePage() {
@@ -50,7 +42,7 @@ export default function HomePage() {
                     left: a.left,
                     "--r": a.r,
                     "--d": a.d,
-                    backgroundImage: a.bg,
+                    backgroundImage: `url(${albums[a.albumIndex % albums.length].cover})`,
                   } as React.CSSProperties
                 }
               />
@@ -89,16 +81,16 @@ export default function HomePage() {
           <div className="landing-section-inner">
             <h2 id="popular-heading">Popular this week</h2>
             <div className="landing-scroll-row" role="list">
-              {POPULAR.map((p) => (
-                <article key={p.title} className="landing-card" role="listitem">
+              {albums.map((album) => (
+                <article key={album.id} className="landing-card" role="listitem">
                   <div
                     className="landing-card-cover"
-                    style={{ backgroundImage: p.bg }}
+                    style={{ backgroundImage: `url(${album.cover})` }}
                     role="img"
-                    aria-label={`${p.title} by ${p.artist}`}
+                    aria-label={`${album.name} by ${album.artist}`}
                   />
-                  <h3 className="landing-card-title">{p.title}</h3>
-                  <p className="landing-card-artist">{p.artist}</p>
+                  <h3 className="landing-card-title">{album.name}</h3>
+                  <p className="landing-card-artist">{album.artist}</p>
                 </article>
               ))}
             </div>
