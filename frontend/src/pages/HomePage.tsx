@@ -4,22 +4,25 @@ import LandingNav from "../components/LandingNav";
 import SiteFooter from "../components/SiteFooter";
 import "../landing.css";
 import { useAuth } from "../hooks/useAuth";
-import { albums } from "../assets/albums";
+import { albums, albumMap } from "../assets/albums";
 
+// change which albums bob by there id here
+// comment by shalev april 29, 2026
 const BOBBING_ALBUMS: {
   top: string;
   left: string;
   r: string;
   d: string;
-  albumIndex: number;
+  // albumId must match AlbumId in the list below
+  albumId: (typeof albums)[number]["id"];
 }[] = [
-  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumIndex: 3 },
-  { top: "18%", left: "78%", r: "8deg", d: "0.4s", albumIndex: 1 },
-  { top: "52%", left: "8%", r: "6deg", d: "0.8s", albumIndex: 2 },
-  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumIndex: 0 },
-  { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumIndex: 4 },
-  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumIndex: 7 },
-  { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumIndex: 5 },
+  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumId: "1989" },
+  { top: "18%", left: "78%", r: "8deg", d: "0.4s", albumId: "deadbeat" },
+  { top: "52%", left: "8%", r: "6deg", d: "0.8s", albumId: "abbeyroad" },
+  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumId: "igor" },
+  { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumId: "currents" },
+  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumId: "pinktape" },
+  { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumId: "ye" },
 ];
 
 export default function HomePage() {
@@ -32,21 +35,25 @@ export default function HomePage() {
         <section className="landing-hero" aria-labelledby="landing-hero-title">
           <div className="landing-hero-glow" aria-hidden />
           <div className="landing-bobbing-layer" aria-hidden>
-            {BOBBING_ALBUMS.map((a, i) => (
-              <span
-                key={i}
-                className="landing-bob-album"
-                style={
-                  {
-                    top: a.top,
-                    left: a.left,
-                    "--r": a.r,
-                    "--d": a.d,
-                    backgroundImage: `url(${albums[a.albumIndex % albums.length].cover})`,
-                  } as React.CSSProperties
-                }
-              />
-            ))}
+            {BOBBING_ALBUMS.map((a, i) => {
+              const album = albumMap[a.albumId];
+              if (!album) return null;
+              return (
+                <span
+                  key={`${a.albumId}-${i}`}
+                  className="landing-bob-album"
+                  style={
+                    {
+                      top: a.top,
+                      left: a.left,
+                      "--r": a.r,
+                      "--d": a.d,
+                      backgroundImage: `url(${album.cover})`,
+                    } as React.CSSProperties
+                  }
+                />
+              );
+            })}
           </div>
           <div className="landing-hero-inner">
             <h1 id="landing-hero-title">

@@ -55,3 +55,7 @@ export const albums = [
       cover: images.albums.ghostStories,
     },
   ] as const;
+
+  export const albumMap = Object.fromEntries(
+    albums.map(a => [a.id, a])
+  ) as Record<string, (typeof albums)[number]>;
