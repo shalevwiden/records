@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { getLibrary, listenAlbum, toggleFavorite, upsertReview } from "../api";
+import { addListening, getLibrary, toggleFavorite, upsertReview, type ListeningEntryType } from "../api";
 
 type LibraryItem = {
   listenedAt: string | null;
+  type: ListeningEntryType;
   album: { id: number; artist: string; title: string };
   review: { id: number; body: string } | null;
   isFavorite: boolean;
@@ -17,6 +18,7 @@ export default function LibraryPage() {
 
   const [artist, setArtist] = useState("");
   const [title, setTitle] = useState("");
+  const [entryType, setEntryType] = useState<ListeningEntryType>("album");
 
   const [reviewDrafts, setReviewDrafts] = useState<Record<number, string>>({});
 
@@ -28,7 +30,10 @@ export default function LibraryPage() {
     setError(null);
     try {
       const res = await getLibrary(token);
-      const nextItems = (res.items || []) as LibraryItem[];
+      const nextItems = (res.items || []).map((it) => ({
+        ...it,
+        type: it.type === "song" ? "song" : "album",
+      })) as LibraryItem[];
       setItems(nextItems);
       const drafts: Record<number, string> = {};
       for (const it of nextItems) {
@@ -52,12 +57,12 @@ export default function LibraryPage() {
     if (!token) return;
     setError(null);
     try {
-      await listenAlbum(token, { artist, title });
+      await addListening(token, { artist, title, type: entryType });
       setArtist("");
       setTitle("");
       await refresh();
     } catch (err: any) {
-      setError(err?.message || "Could not add album");
+      setError(err?.message || "Could not add entry");
     }
   }
 
@@ -88,51 +93,59 @@ export default function LibraryPage() {
     }
   }
 
+  const titleLabel = entryType === "album" ? "Album title" : "Song title";
+  const titlePlaceholder = entryType === "album" ? "e.g. OK Computer" : "e.g. Creep";
+
   return (
     <div style={{ marginTop: 8 }}>
       <div className="grid-2">
         <div className="card">
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Add an album you listened to</div>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Add something you listened to</div>
           <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
-            Enter artist + title, then write a review and favorite it.
+            Choose album or song, then enter artist and title.
           </div>
           <div className="hr" />
           <form onSubmit={onAddListening}>
             <div className="field">
+              <label>Entry type</label>
+              <div style={{ display: "flex", gap: 16, marginTop: 6, flexWrap: "wrap" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 600 }}>
+                  <input
+                    type="radio"
+                    name="entryType"
+                    checked={entryType === "album"}
+                    onChange={() => setEntryType("album")}
+                  />
+                  Album
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 600 }}>
+                  <input
+                    type="radio"
+                    name="entryType"
+                    checked={entryType === "song"}
+                    onChange={() => setEntryType("song")}
+                  />
+                  Song
+                </label>
+              </div>
+            </div>
+            <div className="field" style={{ marginTop: 10 }}>
               <label>Artist</label>
               <input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="e.g. Radiohead" required />
             </div>
             <div className="field" style={{ marginTop: 10 }}>
-              <label>Album title</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. OK Computer" required />
+              <label>{titleLabel}</label>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={titlePlaceholder}
+                required
+              />
             </div>
             {error ? <div className="error" style={{ marginTop: 12 }}>{error}</div> : null}
             <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
               <button className="btn btn-primary" type="submit" disabled={!artist || !title || loading}>
-                {loading ? "Working..." : "Add album"}
-              </button>
-            </div>
-          </form>
-        </div>
-        <div className="card">
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Add an album you listened to</div>
-          <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
-            Enter artist + title, then write a review and favorite it.
-          </div>
-          <div className="hr" />
-          <form onSubmit={onAddListening}>
-            <div className="field">
-              <label>Artist</label>
-              <input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="e.g. Radiohead" required />
-            </div>
-            <div className="field" style={{ marginTop: 10 }}>
-              <label>Album title</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. OK Computer" required />
-            </div>
-            {error ? <div className="error" style={{ marginTop: 12 }}>{error}</div> : null}
-            <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
-              <button className="btn btn-primary" type="submit" disabled={!artist || !title || loading}>
-                {loading ? "Working..." : "Add album"}
+                {loading ? "Working..." : "Add to library"}
               </button>
             </div>
           </form>
@@ -141,14 +154,14 @@ export default function LibraryPage() {
         <div className="card">
           <div style={{ fontWeight: 900, fontSize: 18 }}>Your library</div>
           <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
-            {items.length} album{items.length === 1 ? "" : "s"} in your listening history.
+            {items.length} entr{items.length === 1 ? "y" : "ies"} in your listening history.
           </div>
           <div className="hr" />
 
           {loading ? <div className="muted">Loading...</div> : null}
           {items.length === 0 && !loading ? (
             <div className="muted" style={{ marginTop: 10 }}>
-              No albums yet. Add your first listen to get started.
+              Nothing here yet. Add your first listen to get started.
             </div>
           ) : null}
 
@@ -157,9 +170,14 @@ export default function LibraryPage() {
               <div key={it.album.id} className="item">
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                   <div>
-                    <h3>
-                      {it.album.artist} — {it.album.title}
-                    </h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <h3 style={{ margin: 0 }}>
+                        {it.album.artist} — {it.album.title}
+                      </h3>
+                      <span className="pill" style={{ fontSize: 12, textTransform: "capitalize" }}>
+                        {it.type === "song" ? "Song" : "Album"}
+                      </span>
+                    </div>
                     <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>
                       {it.listenedAt ? `Listened: ${new Date(it.listenedAt).toLocaleString()}` : ""}
                     </div>
@@ -197,4 +215,3 @@ export default function LibraryPage() {
     </div>
   );
 }
-

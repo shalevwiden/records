@@ -64,6 +64,9 @@ class Listening(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     album_id = db.Column(db.Integer, db.ForeignKey("albums.id", ondelete="CASCADE"), nullable=False, index=True)
 
+    # What the user logged: full album vs single song (title is album or track name accordingly).
+    entry_type = db.Column(db.String(16), nullable=False, server_default=db.text("'album'"), index=True)
+
     listened_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
 
     user = db.relationship("User", back_populates="listenings")

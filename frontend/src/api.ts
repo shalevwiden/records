@@ -69,12 +69,25 @@ export async function getMe(token: string) {
   );
 }
 
+export type ListeningEntryType = "album" | "song";
+
 export async function getLibrary(token: string) {
-  return apiFetch<{ items: any[] }>("/me/library", { token });
+  return apiFetch<{
+    items: {
+      listenedAt: string | null;
+      type: ListeningEntryType;
+      album: { id: number; artist: string; title: string };
+      review: unknown;
+      isFavorite: boolean;
+    }[];
+  }>("/me/library", { token });
 }
 
-export async function listenAlbum(token: string, input: { artist: string; title: string }) {
-  return apiFetch<{ album: { id: number; artist: string; title: string } }>(
+export async function addListening(
+  token: string,
+  input: { artist: string; title: string; type?: ListeningEntryType },
+) {
+  return apiFetch<{ album: { id: number; artist: string; title: string }; type: ListeningEntryType }>(
     "/me/listen",
     { method: "POST", token, body: input },
   );

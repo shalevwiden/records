@@ -6,6 +6,8 @@ from ..extensions import db
 from ..models import Album, Favorite, Follow, Listening, Review, User
 from . import api_bp
 
+LISTENING_ENTRY_TYPES = frozenset({"album", "song"})
+
 
 def _current_user() -> User:
     user_id = get_jwt_identity()
@@ -153,6 +155,14 @@ def listen():
     data = request.get_json(silent=True) or {}
     artist = (data.get("artist") or "").strip()
     title = (data.get("title") or "").strip()
+    raw_type = (data.get("type") or "album")
+    if isinstance(raw_type, str):
+        entry_type = raw_type.strip().lower()
+    else:
+        entry_type = "album"
+
+    if entry_type not in LISTENING_ENTRY_TYPES:
+        return jsonify({"error": 'type must be "album" or "song"'}), 400
 
     if not artist or not title:
         return jsonify({"error": "artist and title are required"}), 400
@@ -169,12 +179,13 @@ def listen():
     listening = Listening.query.filter_by(user_id=u.id, album_id=album.id).first()
     if listening:
         listening.listened_at = db.func.now()
+        listening.entry_type = entry_type
     else:
-        listening = Listening(user_id=u.id, album_id=album.id)
+        listening = Listening(user_id=u.id, album_id=album.id, entry_type=entry_type)
         db.session.add(listening)
 
     db.session.commit()
-    return jsonify({"album": album.to_dict()}), 201
+    return jsonify({"album": album.to_dict(), "type": listening.entry_type}), 201
 
 
 @api_bp.get("/me/library")
@@ -195,6 +206,7 @@ def library():
         items.append(
             {
                 "listenedAt": listening.listened_at.isoformat() if listening.listened_at else None,
+                "type": listening.entry_type,
                 "album": album.to_dict(),
                 "review": review.to_dict(include_user=False) if review else None,
                 "isFavorite": Favorite.query.filter_by(user_id=u.id, album_id=album.id).first() is not None,
