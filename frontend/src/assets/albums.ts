@@ -32,7 +32,7 @@ export const albums = [
     },
     {
       id: "ye",
-      name: "ye",
+      name: "Ye",
       artist: "Kanye West",
       cover: images.albums.ye,
     },

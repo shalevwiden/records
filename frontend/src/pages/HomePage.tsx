@@ -13,13 +13,13 @@ const BOBBING_ALBUMS: {
   d: string;
   albumIndex: number;
 }[] = [
-  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumIndex: 0 },
+  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumIndex: 3 },
   { top: "18%", left: "78%", r: "8deg", d: "0.4s", albumIndex: 1 },
   { top: "52%", left: "8%", r: "6deg", d: "0.8s", albumIndex: 2 },
   { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumIndex: 0 },
-  { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumIndex: 1 },
-  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumIndex: 2 },
-  { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumIndex: 0 },
+  { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumIndex: 4 },
+  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumIndex: 7 },
+  { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumIndex: 5 },
 ];
 
 export default function HomePage() {
