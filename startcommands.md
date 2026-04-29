@@ -16,6 +16,10 @@ cd frontend
 npm install
 npm run dev
 
+# refresh port
+
+npx kill-port 5173
+
 ### To see the database
 
 _This means open a postgre shell_

@@ -1,12 +1,43 @@
-from flask import jsonify, request
+import uuid
+from pathlib import Path
+from typing import Optional
+
+from flask import current_app, jsonify, request
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from sqlalchemy import desc, or_
+from werkzeug.utils import secure_filename
 
 from ..extensions import db
-from ..models import Album, Favorite, Follow, Listening, Review, User
+from ..models import Album, Favorite, Follow, Listening, Review, User, UserTopArtist
 from . import api_bp
 
 LISTENING_ENTRY_TYPES = frozenset({"album", "song"})
+ALLOWED_UPLOAD_EXT = frozenset({"png", "jpg", "jpeg", "gif", "webp"})
+
+
+def _normalize_media_url(url) -> Optional[str]:
+    if url is None:
+        return None
+    s = url.strip() if isinstance(url, str) else str(url).strip()
+    if not s or len(s) > 2000:
+        return None
+    low = s.lower()
+    if low.startswith("http://") or low.startswith("https://") or s.startswith("/uploads/"):
+        return s
+    return None
+
+
+def _set_top_artists(user: User, raw_names: list) -> None:
+    UserTopArtist.query.filter_by(user_id=user.id).delete()
+    slot = 1
+    for item in raw_names[:5]:
+        n = (str(item) if item is not None else "").strip()[:200]
+        if not n:
+            continue
+        db.session.add(UserTopArtist(user_id=user.id, slot=slot, artist_name=n))
+        slot += 1
+        if slot > 5:
+            break
 
 
 def _current_user() -> User:
@@ -111,6 +142,16 @@ def login():
                 raise
             # #endregion
         if not u or not pw_ok:
+            # #region agent log
+            _agent_log(
+                "login rejected 401",
+                {
+                    "reason": "no_user" if not u else "bad_password",
+                    "lookup": "email" if "@" in identifier else "username",
+                },
+                "H1-H2",
+            )
+            # #endregion
             return jsonify({"error": "invalid credentials"}), 401
 
         # #region agent log
@@ -146,6 +187,56 @@ def me():
     u = _current_user()
     favorites_count = Favorite.query.filter_by(user_id=u.id).count()
     return jsonify({**u.to_public_dict(), "favoritesCount": favorites_count})
+
+
+@api_bp.patch("/me/profile")
+@jwt_required()
+def patch_profile():
+    u = _current_user()
+    data = request.get_json(silent=True) or {}
+    if "displayName" in data:
+        raw = data.get("displayName")
+        if raw is None:
+            u.display_name = None
+        else:
+            u.display_name = str(raw).strip()[:120] or None
+    if "bio" in data:
+        raw = data.get("bio")
+        if raw is None:
+            u.bio = None
+        else:
+            u.bio = str(raw).strip()[:5000] or None
+    if "avatarUrl" in data:
+        u.avatar_url = _normalize_media_url(data.get("avatarUrl"))
+    if "topArtists" in data:
+        raw = data.get("topArtists")
+        if not isinstance(raw, list):
+            return jsonify({"error": "topArtists must be an array"}), 400
+        _set_top_artists(u, raw)
+    db.session.commit()
+    return jsonify(u.to_public_dict())
+
+
+@api_bp.post("/me/uploads/image")
+@jwt_required()
+def upload_image():
+    _current_user()
+    if "file" not in request.files:
+        return jsonify({"error": "file is required"}), 400
+    file = request.files["file"]
+    if not file or not file.filename:
+        return jsonify({"error": "file is required"}), 400
+    raw_name = secure_filename(file.filename)
+    if not raw_name or "." not in raw_name:
+        return jsonify({"error": "invalid file name"}), 400
+    ext = raw_name.rsplit(".", 1)[-1].lower()
+    if ext not in ALLOWED_UPLOAD_EXT:
+        return jsonify({"error": "allowed types: png, jpg, jpeg, gif, webp"}), 400
+    name = f"{uuid.uuid4().hex}.{ext}"
+    folder = Path(current_app.config["UPLOAD_FOLDER"])
+    folder.mkdir(parents=True, exist_ok=True)
+    file.save(folder / name)
+    return jsonify({"url": f"/uploads/{name}"}), 201
 
 
 @api_bp.post("/me/listen")
@@ -184,8 +275,28 @@ def listen():
         listening = Listening(user_id=u.id, album_id=album.id, entry_type=entry_type)
         db.session.add(listening)
 
+    if "coverImageUrl" in data:
+        listening.cover_image_url = _normalize_media_url(data.get("coverImageUrl"))
+
     db.session.commit()
-    return jsonify({"album": album.to_dict(), "type": listening.entry_type}), 201
+    return jsonify(
+        {"album": album.to_dict(), "type": listening.entry_type, "coverImageUrl": listening.cover_image_url}
+    ), 201
+
+
+@api_bp.patch("/me/listenings/<int:album_id>")
+@jwt_required()
+def patch_listening_cover(album_id: int):
+    u = _current_user()
+    data = request.get_json(silent=True) or {}
+    listening = Listening.query.filter_by(user_id=u.id, album_id=album_id).first()
+    if not listening:
+        return jsonify({"error": "listening not found"}), 404
+    if "coverImageUrl" not in data:
+        return jsonify({"error": "coverImageUrl is required"}), 400
+    listening.cover_image_url = _normalize_media_url(data.get("coverImageUrl"))
+    db.session.commit()
+    return jsonify({"albumId": album_id, "coverImageUrl": listening.cover_image_url})
 
 
 @api_bp.get("/me/library")
@@ -207,6 +318,7 @@ def library():
             {
                 "listenedAt": listening.listened_at.isoformat() if listening.listened_at else None,
                 "type": listening.entry_type,
+                "coverImageUrl": listening.cover_image_url,
                 "album": album.to_dict(),
                 "review": review.to_dict(include_user=False) if review else None,
                 "isFavorite": Favorite.query.filter_by(user_id=u.id, album_id=album.id).first() is not None,
@@ -360,9 +472,16 @@ def profile(username: str):
     if me_id:
         follow_state = Follow.query.filter_by(follower_id=int(me_id), following_id=user.id).first() is not None
 
+    tops = (
+        UserTopArtist.query.filter_by(user_id=user.id)
+        .order_by(UserTopArtist.slot.asc())
+        .all()
+    )
+
     return jsonify(
         {
             "user": user.to_public_dict(),
+            "topArtists": [{"slot": t.slot, "name": t.artist_name} for t in tops],
             "favorites": [a.to_dict() for a in favorites],
             "followersCount": followers_count,
             "followingCount": following_count,

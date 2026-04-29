@@ -12,9 +12,19 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    display_name = db.Column(db.String(120), nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    avatar_url = db.Column(db.String(1000), nullable=True)
+
     listenings = db.relationship("Listening", back_populates="user", cascade="all, delete-orphan")
     reviews = db.relationship("Review", back_populates="user", cascade="all, delete-orphan")
     favorites = db.relationship("Favorite", back_populates="user", cascade="all, delete-orphan")
+    top_artists = db.relationship(
+        "UserTopArtist",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        order_by="UserTopArtist.slot",
+    )
 
     def set_password(self, password: str) -> None:
         pw_hash = bcrypt.generate_password_hash(password.encode("utf-8"))
@@ -27,6 +37,9 @@ class User(db.Model):
         return {
             "id": self.id,
             "username": self.username,
+            "displayName": (self.display_name or "").strip() or None,
+            "bio": (self.bio or "").strip(),
+            "avatarUrl": (self.avatar_url or "").strip() or None,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -69,12 +82,28 @@ class Listening(db.Model):
 
     listened_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
 
+    # Optional artwork for this listen (URL or /uploads/... path).
+    cover_image_url = db.Column(db.String(2000), nullable=True)
+
     user = db.relationship("User", back_populates="listenings")
     album = db.relationship("Album", back_populates="listenings")
 
     __table_args__ = (
         db.UniqueConstraint("user_id", "album_id", name="uq_listening_user_album"),
     )
+
+
+class UserTopArtist(db.Model):
+    __tablename__ = "user_top_artists"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    slot = db.Column(db.Integer, nullable=False)  # 1–5
+    artist_name = db.Column(db.String(200), nullable=False)
+
+    user = db.relationship("User", back_populates="top_artists")
+
+    __table_args__ = (db.UniqueConstraint("user_id", "slot", name="uq_user_top_slot"),)
 
 
 class Review(db.Model):

@@ -1,10 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { addListening, getLibrary, toggleFavorite, upsertReview, type ListeningEntryType } from "../api";
+import {
+  addListening,
+  getLibrary,
+  patchListeningCover,
+  toggleFavorite,
+  upsertReview,
+  uploadImage,
+  type ListeningEntryType,
+} from "../api";
 
 type LibraryItem = {
   listenedAt: string | null;
   type: ListeningEntryType;
+  coverImageUrl: string | null;
   album: { id: number; artist: string; title: string };
   review: { id: number; body: string } | null;
   isFavorite: boolean;
@@ -19,8 +28,11 @@ export default function LibraryPage() {
   const [artist, setArtist] = useState("");
   const [title, setTitle] = useState("");
   const [entryType, setEntryType] = useState<ListeningEntryType>("album");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
   const [reviewDrafts, setReviewDrafts] = useState<Record<number, string>>({});
+  const [coverEdits, setCoverEdits] = useState<Record<number, string>>({});
 
   const canUse = useMemo(() => Boolean(token), [token]);
 
@@ -33,8 +45,14 @@ export default function LibraryPage() {
       const nextItems = (res.items || []).map((it) => ({
         ...it,
         type: it.type === "song" ? "song" : "album",
+        coverImageUrl: it.coverImageUrl ?? null,
       })) as LibraryItem[];
       setItems(nextItems);
+      const ce: Record<number, string> = {};
+      for (const it of nextItems) {
+        ce[it.album.id] = it.coverImageUrl ?? "";
+      }
+      setCoverEdits(ce);
       const drafts: Record<number, string> = {};
       for (const it of nextItems) {
         drafts[it.album.id] = it.review?.body ?? "";
@@ -57,12 +75,35 @@ export default function LibraryPage() {
     if (!token) return;
     setError(null);
     try {
-      await addListening(token, { artist, title, type: entryType });
+      let cover: string | null = coverImageUrl.trim() || null;
+      if (coverFile) {
+        const up = await uploadImage(token, coverFile);
+        cover = up.url;
+      }
+      await addListening(token, { artist, title, type: entryType, coverImageUrl: cover });
       setArtist("");
       setTitle("");
+      setCoverImageUrl("");
+      setCoverFile(null);
       await refresh();
     } catch (err: any) {
       setError(err?.message || "Could not add entry");
+    }
+  }
+
+  async function onUpdateCover(albumId: number, file?: File | null) {
+    if (!token) return;
+    setError(null);
+    try {
+      let url: string | null = (coverEdits[albumId] ?? "").trim() || null;
+      if (file) {
+        const up = await uploadImage(token, file);
+        url = up.url;
+      }
+      await patchListeningCover(token, albumId, url);
+      await refresh();
+    } catch (err: any) {
+      setError(err?.message || "Could not update cover");
     }
   }
 
@@ -142,6 +183,22 @@ export default function LibraryPage() {
                 required
               />
             </div>
+            <div className="field" style={{ marginTop: 10 }}>
+              <label>Cover image (optional)</label>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
+                  onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                />
+                <input
+                  value={coverImageUrl}
+                  onChange={(e) => setCoverImageUrl(e.target.value)}
+                  placeholder="Or paste URL (/uploads/… or https://…)"
+                  style={{ flex: "1 1 200px", minWidth: 0 }}
+                />
+              </div>
+            </div>
             {error ? <div className="error" style={{ marginTop: 12 }}>{error}</div> : null}
             <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
               <button className="btn btn-primary" type="submit" disabled={!artist || !title || loading}>
@@ -169,17 +226,37 @@ export default function LibraryPage() {
             {items.map((it) => (
               <div key={it.album.id} className="item">
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                      <h3 style={{ margin: 0 }}>
-                        {it.album.artist} — {it.album.title}
-                      </h3>
-                      <span className="pill" style={{ fontSize: 12, textTransform: "capitalize" }}>
-                        {it.type === "song" ? "Song" : "Album"}
-                      </span>
+                  <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
+                    <div
+                      style={{
+                        width: 88,
+                        height: 88,
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        background: "var(--border, #e5e5e5)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {it.coverImageUrl ? (
+                        <img
+                          src={it.coverImageUrl}
+                          alt=""
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : null}
                     </div>
-                    <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>
-                      {it.listenedAt ? `Listened: ${new Date(it.listenedAt).toLocaleString()}` : ""}
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                        <h3 style={{ margin: 0 }}>
+                          {it.album.artist} — {it.album.title}
+                        </h3>
+                        <span className="pill" style={{ fontSize: 12, textTransform: "capitalize" }}>
+                          {it.type === "song" ? "Song" : "Album"}
+                        </span>
+                      </div>
+                      <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>
+                        {it.listenedAt ? `Listened: ${new Date(it.listenedAt).toLocaleString()}` : ""}
+                      </div>
                     </div>
                   </div>
                   <button
@@ -189,6 +266,32 @@ export default function LibraryPage() {
                   >
                     {it.isFavorite ? "Unfavorite" : "Favorite"}
                   </button>
+                </div>
+
+                <div style={{ marginTop: 12 }} className="field">
+                  <label>Cover image</label>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/gif,image/webp"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) onUpdateCover(it.album.id, f);
+                        e.target.value = "";
+                      }}
+                    />
+                    <input
+                      value={coverEdits[it.album.id] ?? ""}
+                      onChange={(e) =>
+                        setCoverEdits((prev) => ({ ...prev, [it.album.id]: e.target.value }))
+                      }
+                      placeholder="Image URL"
+                      style={{ flex: "1 1 160px", minWidth: 0 }}
+                    />
+                    <button className="btn" type="button" onClick={() => onUpdateCover(it.album.id)}>
+                      Save cover
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ marginTop: 12 }}>

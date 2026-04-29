@@ -1,5 +1,14 @@
 export type ApiError = { error?: string; message?: string };
 
+export type UserPublic = {
+  id: number;
+  username: string;
+  displayName: string | null;
+  bio: string;
+  avatarUrl: string | null;
+  createdAt: string;
+};
+
 const API_BASE = "/api";
 
 export function apiFetch<T>(
@@ -49,33 +58,55 @@ export function apiFetch<T>(
 }
 
 export async function signup(input: { username: string; email: string; password: string }) {
-  return apiFetch<{ id: number; username: string; createdAt: string }>(
-    "/auth/signup",
-    { method: "POST", body: input },
-  );
+  return apiFetch<UserPublic>("/auth/signup", { method: "POST", body: input });
 }
 
 export async function login(input: { emailOrUsername: string; password: string }) {
-  return apiFetch<{ accessToken: string; user: { id: number; username: string; createdAt: string } }>(
-    "/auth/login",
-    { method: "POST", body: input },
-  );
+  return apiFetch<{ accessToken: string; user: UserPublic }>("/auth/login", { method: "POST", body: input });
 }
 
 export async function getMe(token: string) {
-  return apiFetch<{ id: number; username: string; favoritesCount: number }>(
-    "/me",
-    { token },
-  );
+  return apiFetch<UserPublic & { favoritesCount: number }>("/me", { token });
+}
+
+export async function updateProfile(
+  token: string,
+  body: {
+    displayName?: string | null;
+    bio?: string | null;
+    avatarUrl?: string | null;
+    topArtists?: string[];
+  },
+) {
+  return apiFetch<UserPublic>("/me/profile", { method: "PATCH", token, body });
+}
+
+export async function uploadImage(token: string, file: File) {
+  const fd = new FormData();
+  fd.append("file", file);
+  const url = `${API_BASE}/me/uploads/image`;
+  return fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: fd,
+  }).then(async (res) => {
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      const err = (data as ApiError) || { error: `Request failed (${res.status})` };
+      throw new Error(err.error || err.message || `Request failed (${res.status})`);
+    }
+    return data as { url: string };
+  });
 }
 
 export type ListeningEntryType = "album" | "song";
 
 export async function getLibrary(token: string) {
   return apiFetch<{
-    items: {
+      items: {
       listenedAt: string | null;
       type: ListeningEntryType;
+      coverImageUrl: string | null;
       album: { id: number; artist: string; title: string };
       review: unknown;
       isFavorite: boolean;
@@ -85,11 +116,18 @@ export async function getLibrary(token: string) {
 
 export async function addListening(
   token: string,
-  input: { artist: string; title: string; type?: ListeningEntryType },
+  input: { artist: string; title: string; type?: ListeningEntryType; coverImageUrl?: string | null },
 ) {
   return apiFetch<{ album: { id: number; artist: string; title: string }; type: ListeningEntryType }>(
     "/me/listen",
     { method: "POST", token, body: input },
+  );
+}
+
+export async function patchListeningCover(token: string, albumId: number, coverImageUrl: string | null) {
+  return apiFetch<{ albumId: number; coverImageUrl: string | null }>(
+    `/me/listenings/${albumId}`,
+    { method: "PATCH", token, body: { coverImageUrl } },
   );
 }
 

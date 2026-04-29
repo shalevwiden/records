@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getMe, login as apiLogin, signup as apiSignup } from "../api";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { getMe, login as apiLogin, signup as apiSignup, type UserPublic } from "../api";
 
-type User = { id: number; username: string; createdAt: string };
+export type User = UserPublic;
 
 type AuthContextValue = {
   ready: boolean;
@@ -10,6 +10,7 @@ type AuthContextValue = {
   login: (input: { emailOrUsername: string; password: string }) => Promise<void>;
   signup: (input: { username: string; email: string; password: string }) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -17,13 +18,32 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const TOKEN_KEY = "records_accessToken";
 const USER_KEY = "records_user";
 
+function mapStoredUser(me: UserPublic): User {
+  return {
+    id: me.id,
+    username: me.username,
+    displayName: me.displayName ?? null,
+    bio: me.bio ?? "",
+    avatarUrl: me.avatarUrl ?? null,
+    createdAt: me.createdAt,
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState<string | null>(localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState<User | null>(() => {
     const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    return raw ? mapStoredUser(JSON.parse(raw) as UserPublic) : null;
   });
+
+  const refreshUser = useCallback(async () => {
+    if (!token) return;
+    const me = await getMe(token);
+    const u = mapStoredUser(me);
+    setUser(u);
+    localStorage.setItem(USER_KEY, JSON.stringify(u));
+  }, [token]);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const me = await getMe(token);
         if (cancelled) return;
-        setUser({ id: me.id, username: me.username, createdAt: me.createdAt });
+        setUser(mapStoredUser(me));
       } catch {
         if (cancelled) return;
         localStorage.removeItem(TOKEN_KEY);
@@ -55,8 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(input: { emailOrUsername: string; password: string }) {
     const res = await apiLogin(input);
     setToken(res.accessToken);
-    const u = res.user;
-    setUser({ id: u.id, username: u.username, createdAt: u.createdAt });
+    const u = mapStoredUser(res.user);
+    setUser(u);
     localStorage.setItem(TOKEN_KEY, res.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(u));
   }
@@ -73,8 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ready, token, user, login, signup, logout }),
-    [ready, token, user],
+    () => ({ ready, token, user, login, signup, logout, refreshUser }),
+    [ready, token, user, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -85,4 +105,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
-

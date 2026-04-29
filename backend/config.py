@@ -1,5 +1,8 @@
 import os
 from datetime import timedelta
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent
 
 
 class Config:
@@ -30,4 +33,8 @@ class Config:
 
     # Dev-only convenience
     AUTO_CREATE_DB = os.getenv("RECORDS_AUTO_CREATE_DB", "true").lower() in ("1", "true", "yes")
+
+    # Uploaded images (covers, avatars) — served from /uploads/<filename>
+    UPLOAD_FOLDER = str(_BACKEND_DIR / "instance" / "uploads")
+    MAX_CONTENT_LENGTH = int(os.getenv("RECORDS_MAX_UPLOAD_MB", "5")) * 1024 * 1024
 
