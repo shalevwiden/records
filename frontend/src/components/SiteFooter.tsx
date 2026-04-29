@@ -27,7 +27,7 @@ export default function SiteFooter() {
             <span className="landing-brand-text">Records</span>
           </Link>
           <p className="landing-footer-tagline">
-            mycool album app — catalog what you listen to, write short reviews, and share discoveries
+            Records — catalog what you listen to, write short reviews, and share discoveries
             with friends who care about music as much as you do.
           </p>
         </div>
@@ -65,7 +65,7 @@ export default function SiteFooter() {
             </SocialIcon>
           </div>
         </div>
-        <div className="landing-footer-bottom">© {new Date().getFullYear()} Records · mycool album app</div>
+        <div className="landing-footer-bottom">© {new Date().getFullYear()} Records · Track and share what you love.</div>
       </div>
     </footer>
   );

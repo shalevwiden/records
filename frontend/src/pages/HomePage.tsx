@@ -23,7 +23,7 @@ const BOBBING_ALBUMS: {
 
 const POPULAR: { title: string; artist: string; bg: string }[] = [
   { title: "The Dark Side of the Moon", artist: "Pink Floyd", bg: "linear-gradient(145deg,#1e293b,#6366f1)" },
-  { title: "In Rainbows", artist: "Radiohead", bg: "linear-gradient(145deg,#422006,#f97316)" },
+  { title: "Deadbeat", artist: "Tame Impala", bg: "linear-gradient(145deg,#422006,#f97316)" },
   { title: "IGOR", artist: "Tyler, The Creator", bg: "linear-gradient(145deg,#3b0764,#e879f9)" },
   { title: "Blonde", artist: "Frank Ocean", bg: "linear-gradient(145deg,#14532d,#86efac)" },
   { title: "My Beautiful Dark Twisted Fantasy", artist: "Kanye West", bg: "linear-gradient(145deg,#7f1d1d,#f87171)" },
@@ -61,8 +61,9 @@ export default function HomePage() {
               Review your favorite albums. Catalog everything you listen to. Share your passion for music.
             </h1>
             <p className="landing-hero-lead">
-              mycool album app is a calm home for your listening history — rate records, keep a personal
-              library, and see what your circle is spinning without the noise of a traditional feed.
+              Records is a home for your listening history: log and review albums, see what your friends are listening to,
+              and keep a running history of what you have on repeat.
+              
             </p>
             <div className="landing-hero-cta">
               {token ? (

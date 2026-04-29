@@ -27,3 +27,10 @@ docker compose exec db psql -U records -d records
 
 The run commands like \dt to list all tables
 Hit q when it shows output
+
+### Docker down note:
+
+docker compose down -v
+this wipes data
+docker compose down
+this keeps it
