@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function SignupPage() {
-  const { signup } = useAuth();
+  const { signup, token, ready } = useAuth();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -11,6 +11,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  if (ready && token) return <Navigate to="/library" replace />;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,7 +32,9 @@ export default function SignupPage() {
     <div className="container">
       <div className="card" style={{ maxWidth: 520, margin: "20px auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-          <div className="logo" />
+          <Link to="/" aria-label="Records home" style={{ display: "flex" }}>
+            <div className="logo" />
+          </Link>
           <div>
             <div style={{ fontSize: 20, fontWeight: 800 }}>Create your account</div>
             <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>
@@ -61,9 +65,9 @@ export default function SignupPage() {
             <button className="btn btn-primary" type="submit" disabled={loading}>
               {loading ? "Creating..." : "Create account"}
             </button>
-            <a className="btn" href="/login">
+            <Link className="btn" to="/login">
               Back to sign in
-            </a>
+            </Link>
           </div>
         </form>
       </div>

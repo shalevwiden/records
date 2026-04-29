@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, token, ready } = useAuth();
   const navigate = useNavigate();
 
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  if (ready && token) return <Navigate to="/library" replace />;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +31,9 @@ export default function LoginPage() {
     <div className="container">
       <div className="card" style={{ maxWidth: 480, margin: "20px auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-          <div className="logo" />
+          <Link to="/" aria-label="Records home" style={{ display: "flex" }}>
+            <div className="logo" />
+          </Link>
           <div>
             <div style={{ fontSize: 20, fontWeight: 800 }}>Welcome back</div>
             <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>
@@ -59,9 +63,9 @@ export default function LoginPage() {
             <button className="btn btn-primary" type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </button>
-            <a className="btn" href="/signup">
+            <Link className="btn" to="/signup">
               Create account
-            </a>
+            </Link>
           </div>
         </form>
       </div>

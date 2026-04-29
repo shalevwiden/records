@@ -3,6 +3,8 @@ import { Navigate, Route, Routes, Link } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
 import LibraryPage from "./pages/LibraryPage";
 import FeedPage from "./pages/FeedPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -19,7 +21,7 @@ function AppShell() {
   return (
     <div className="container">
       <div className="topbar">
-        <div className="brand">
+        <Link to="/" className="brand" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="logo" />
           <div>
             <div>Records</div>
@@ -27,7 +29,7 @@ function AppShell() {
               Log and share albums and songs
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className="nav">
           <Link to="/library">Library</Link>
@@ -43,10 +45,10 @@ function AppShell() {
 
       <div style={{ marginTop: 16 }}>
         <Routes>
-          <Route path="/" element={<Navigate to="/library" replace />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="*" element={<Navigate to="/library" replace />} />
         </Routes>
       </div>
     </div>
@@ -57,6 +59,8 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route
