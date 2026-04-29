@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify
+from sqlalchemy.exc import OperationalError
 
 from .config import Config
 from .extensions import init_extensions
@@ -12,6 +13,10 @@ def create_app() -> Flask:
 
     init_extensions(app)
     app.register_blueprint(api_bp, url_prefix="/api")
+
+    @app.errorhandler(OperationalError)
+    def _db_unavailable(_err):
+        return jsonify({"error": "database unavailable; ensure Postgres is running and DATABASE_URL is correct"}), 503
 
     if app.config.get("AUTO_CREATE_DB"):
         # Dev-only: allow a first run without migrations.

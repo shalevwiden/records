@@ -25,6 +25,22 @@ export function apiFetch<T>(
   }).then(async (res) => {
     const data = await res.json().catch(() => null);
     if (!res.ok) {
+      // #region agent log
+      if (path.includes("auth/login")) {
+        fetch("http://127.0.0.1:7673/ingest/9e471fcb-489a-4876-9a35-910e1943b6e1", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "e9bd46" },
+          body: JSON.stringify({
+            sessionId: "e9bd46",
+            location: "frontend/src/api.ts:apiFetch",
+            message: "login response not ok",
+            data: { status: res.status, bodyKeys: data && typeof data === "object" ? Object.keys(data as object) : [] },
+            timestamp: Date.now(),
+            hypothesisId: "H-client",
+          }),
+        }).catch(() => {});
+      }
+      // #endregion
       const err = (data as ApiError) || { error: `Request failed (${res.status})` };
       throw new Error(err.error || err.message || `Request failed (${res.status})`);
     }

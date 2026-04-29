@@ -1,0 +1,7 @@
+{"sessionId":"e9bd46","location":"frontend/src/api.ts:apiFetch","message":"login response not ok","data":{"status":500,"bodyKeys":[]},"timestamp":1777424688407,"hypothesisId":"H-client"}
+{"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "login entry", "data": {"id_len": 10, "has_at": false, "pw_len": 7}, "timestamp": 1777424766877, "hypothesisId": "H1"}
+{"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "after user lookup", "data": {"user_found": true, "user_id": 1}, "timestamp": 1777424766910, "hypothesisId": "H1"}
+{"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "check_password done", "data": {"ok": true}, "timestamp": 1777424767108, "hypothesisId": "H2"}
+{"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "before create_access_token", "data": {"user_id": 1}, "timestamp": 1777424767108, "hypothesisId": "H3"}
+{"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "after create_access_token", "data": {"token_len": 325}, "timestamp": 1777424767110, "hypothesisId": "H3"}
+{"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "to_public_dict ok", "data": {"keys": ["id", "username", "createdAt"]}, "timestamp": 1777424767110, "hypothesisId": "H4"}

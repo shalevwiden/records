@@ -114,6 +114,29 @@ export default function LibraryPage() {
             </div>
           </form>
         </div>
+        <div className="card">
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Add an album you listened to</div>
+          <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
+            Enter artist + title, then write a review and favorite it.
+          </div>
+          <div className="hr" />
+          <form onSubmit={onAddListening}>
+            <div className="field">
+              <label>Artist</label>
+              <input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="e.g. Radiohead" required />
+            </div>
+            <div className="field" style={{ marginTop: 10 }}>
+              <label>Album title</label>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. OK Computer" required />
+            </div>
+            {error ? <div className="error" style={{ marginTop: 12 }}>{error}</div> : null}
+            <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
+              <button className="btn btn-primary" type="submit" disabled={!artist || !title || loading}>
+                {loading ? "Working..." : "Add album"}
+              </button>
+            </div>
+          </form>
+        </div>
 
         <div className="card">
           <div style={{ fontWeight: 900, fontSize: 18 }}>Your library</div>

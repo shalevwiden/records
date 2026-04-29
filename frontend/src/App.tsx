@@ -24,7 +24,7 @@ function AppShell() {
           <div>
             <div>Records</div>
             <div className="muted" style={{ fontSize: 12, fontWeight: 650 }}>
-              album reviews & favorites
+              Log and share albums and songs
             </div>
           </div>
         </div>

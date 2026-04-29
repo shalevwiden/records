@@ -15,3 +15,11 @@ python -m backend.run
 cd frontend
 npm install
 npm run dev
+
+### To see the database
+
+_This means open a postgre shell_
+docker compose exec db psql -U records -d records
+
+The run commands like \dt to list all tables
+Hit q when it shows output

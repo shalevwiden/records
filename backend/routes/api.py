@@ -41,23 +41,101 @@ def signup():
 
 @api_bp.post("/auth/login")
 def login():
-    data = request.get_json(silent=True) or {}
-    identifier = (data.get("emailOrUsername") or "").strip()
-    password = data.get("password") or ""
+    # #region agent log
+    import json
+    import time
 
-    if not identifier or not password:
-        return jsonify({"error": "emailOrUsername and password are required"}), 400
+    _AGENT_LOG = "/Users/shalevwiden/Downloads/Projects/cursor/records/.cursor/debug-e9bd46.log"
 
-    if "@" in identifier:
-        u = User.query.filter(User.email == identifier.lower()).first()
-    else:
-        u = User.query.filter(User.username == identifier).first()
+    def _agent_log(message: str, data: dict, hypothesis_id: str) -> None:
+        try:
+            with open(_AGENT_LOG, "a", encoding="utf-8") as _f:
+                _f.write(
+                    json.dumps(
+                        {
+                            "sessionId": "e9bd46",
+                            "location": "backend/routes/api.py:login",
+                            "message": message,
+                            "data": data,
+                            "timestamp": int(time.time() * 1000),
+                            "hypothesisId": hypothesis_id,
+                        },
+                        default=str,
+                    )
+                    + "\n"
+                )
+        except Exception:
+            pass
 
-    if not u or not u.check_password(password):
-        return jsonify({"error": "invalid credentials"}), 401
+    # #endregion
 
-    token = create_access_token(identity=str(u.id))
-    return jsonify({"accessToken": token, "user": u.to_public_dict()})
+    try:
+        data = request.get_json(silent=True) or {}
+        identifier = (data.get("emailOrUsername") or "").strip()
+        password = data.get("password") or ""
+
+        # #region agent log
+        _agent_log(
+            "login entry",
+            {"id_len": len(identifier), "has_at": "@" in identifier, "pw_len": len(password)},
+            "H1",
+        )
+        # #endregion
+
+        if not identifier or not password:
+            return jsonify({"error": "emailOrUsername and password are required"}), 400
+
+        if "@" in identifier:
+            u = User.query.filter(User.email == identifier.lower()).first()
+        else:
+            u = User.query.filter(User.username == identifier).first()
+
+        # #region agent log
+        _agent_log("after user lookup", {"user_found": u is not None, "user_id": getattr(u, "id", None)}, "H1")
+        # #endregion
+
+        pw_ok = False
+        if u:
+            # #region agent log
+            try:
+                pw_ok = u.check_password(password)
+                _agent_log("check_password done", {"ok": pw_ok}, "H2")
+            except Exception as _pw_exc:
+                _agent_log(
+                    "check_password raised",
+                    {"exc_type": type(_pw_exc).__name__, "exc_msg": str(_pw_exc)},
+                    "H2",
+                )
+                raise
+            # #endregion
+        if not u or not pw_ok:
+            return jsonify({"error": "invalid credentials"}), 401
+
+        # #region agent log
+        _agent_log("before create_access_token", {"user_id": u.id}, "H3")
+        # #endregion
+        token = create_access_token(identity=str(u.id))
+
+        # #region agent log
+        _agent_log("after create_access_token", {"token_len": len(token) if token else 0}, "H3")
+        # #endregion
+
+        pub = u.to_public_dict()
+
+        # #region agent log
+        _agent_log("to_public_dict ok", {"keys": list(pub.keys())}, "H4")
+        # #endregion
+
+        return jsonify({"accessToken": token, "user": pub})
+    except Exception as e:
+        # #region agent log
+        _agent_log(
+            "login unhandled exception",
+            {"exc_type": type(e).__name__, "exc_msg": str(e)},
+            "H5",
+        )
+        # #endregion
+        raise
 
 
 @api_bp.get("/me")
