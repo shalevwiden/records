@@ -80,7 +80,12 @@ export default function LibraryPage() {
         const up = await uploadImage(token, coverFile);
         cover = up.url;
       }
-      await addListening(token, { artist, title, type: entryType, coverImageUrl: cover });
+      await addListening(token, {
+        artist,
+        title,
+        type: entryType,
+        coverImageUrl: cover,
+      });
       setArtist("");
       setTitle("");
       setCoverImageUrl("");
@@ -135,22 +140,50 @@ export default function LibraryPage() {
   }
 
   const titleLabel = entryType === "album" ? "Album title" : "Song title";
-  const titlePlaceholder = entryType === "album" ? "e.g. OK Computer" : "e.g. Creep";
+  const titlePlaceholder =
+    entryType === "album" ? "e.g. OK Computer" : "e.g. Creep";
 
   return (
     <div style={{ marginTop: 8 }}>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Your library</h1>
+          <p className="page-subtitle">
+            Track everything you listen to and write reviews you actually want
+            to revisit.
+          </p>
+        </div>
+        <div className="pill">
+          {items.length} entr{items.length === 1 ? "y" : "ies"}
+        </div>
+      </div>
       <div className="grid-2">
-        <div className="card">
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Add something you listened to</div>
-          <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
+        <div className="card card-hero">
+          <div className="section-title">Add something you listened to</div>
+          <div className="section-sub">
             Choose album or song, then enter artist and title.
           </div>
           <div className="hr" />
           <form onSubmit={onAddListening}>
             <div className="field">
               <label>Entry type</label>
-              <div style={{ display: "flex", gap: 16, marginTop: 6, flexWrap: "wrap" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 600 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 16,
+                  marginTop: 6,
+                  flexWrap: "wrap",
+                }}
+              >
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
                   <input
                     type="radio"
                     name="entryType"
@@ -159,7 +192,15 @@ export default function LibraryPage() {
                   />
                   Album
                 </label>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontWeight: 600 }}>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
                   <input
                     type="radio"
                     name="entryType"
@@ -172,7 +213,12 @@ export default function LibraryPage() {
             </div>
             <div className="field" style={{ marginTop: 10 }}>
               <label>Artist</label>
-              <input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="e.g. Radiohead" required />
+              <input
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                placeholder="e.g. Radiohead"
+                required
+              />
             </div>
             <div className="field" style={{ marginTop: 10 }}>
               <label>{titleLabel}</label>
@@ -185,7 +231,14 @@ export default function LibraryPage() {
             </div>
             <div className="field" style={{ marginTop: 10 }}>
               <label>Cover image (optional)</label>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/gif,image/webp"
@@ -199,9 +252,24 @@ export default function LibraryPage() {
                 />
               </div>
             </div>
-            {error ? <div className="error" style={{ marginTop: 12 }}>{error}</div> : null}
-            <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
-              <button className="btn btn-primary" type="submit" disabled={!artist || !title || loading}>
+            {error ? (
+              <div className="error" style={{ marginTop: 12 }}>
+                {error}
+              </div>
+            ) : null}
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                marginTop: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                className="btn btn-primary"
+                type="submit"
+                disabled={!artist || !title || loading}
+              >
                 {loading ? "Working..." : "Add to library"}
               </button>
             </div>
@@ -209,9 +277,10 @@ export default function LibraryPage() {
         </div>
 
         <div className="card">
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Your library</div>
-          <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
-            {items.length} entr{items.length === 1 ? "y" : "ies"} in your listening history.
+          <div className="section-title">Listening history</div>
+          <div className="section-sub">
+            {items.length} entr{items.length === 1 ? "y" : "ies"} so far. Newest
+            first.
           </div>
           <div className="hr" />
 
@@ -225,44 +294,86 @@ export default function LibraryPage() {
           <div className="list" style={{ marginTop: 12 }}>
             {items.map((it) => (
               <div key={it.album.id} className="item">
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
-                    <div
-                      style={{
-                        width: 88,
-                        height: 88,
-                        borderRadius: 8,
-                        overflow: "hidden",
-                        background: "var(--border, #e5e5e5)",
-                        flexShrink: 0,
-                      }}
-                    >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 14,
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div className="cover-thumb">
                       {it.coverImageUrl ? (
-                        <img
-                          src={it.coverImageUrl}
-                          alt=""
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
+                        <img src={it.coverImageUrl} alt="" />
                       ) : null}
                     </div>
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          flexWrap: "wrap",
+                        }}
+                      >
                         <h3 style={{ margin: 0 }}>
-                          {it.album.artist} — {it.album.title}
+                          {/* this line is where the space between the artist and title is */}
+                          {it.album.artist} – {it.album.title}
                         </h3>
-                        <span className="pill" style={{ fontSize: 12, textTransform: "capitalize" }}>
+                        <span
+                          className="pill"
+                          style={{ fontSize: 12, textTransform: "capitalize" }}
+                        >
                           {it.type === "song" ? "Song" : "Album"}
                         </span>
                       </div>
-                      <div className="muted" style={{ fontSize: 13, fontWeight: 650 }}>
-                        {it.listenedAt ? `Listened: ${new Date(it.listenedAt).toLocaleString()}` : ""}
+                      <div
+                        className="muted"
+                        style={{ fontSize: 13, fontWeight: 650 }}
+                      >
+                        {it.listenedAt
+                          ? `Logged: ${new Date(it.listenedAt).toLocaleString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}`
+                          : ""}
                       </div>
                     </div>
                   </div>
                   <button
-                    className={`btn ${it.isFavorite ? "btn-danger" : "btn-primary"}`}
                     type="button"
                     onClick={() => onToggleFavorite(it.album.id, it.isFavorite)}
+                    className={`
+                                        relative px-4 py-2 rounded-md font-semibold
+                                  transition-all duration-300 ease-out
+
+                                       ${
+                                         it.isFavorite
+                                           ? "bg-red-600 text-white"
+                                           : "bg-red-700 text-white"
+                                       }
+
+                                  shadow-[0_0_15px_rgba(255,0,0,0.6)]
+                                  hover:shadow-[0_0_25px_rgba(255,120,0,0.9)]
+                                  hover:bg-orange-500
+                                  hover:scale-105
+
+                                  active:scale-95
+                                `}
                   >
                     {it.isFavorite ? "Unfavorite" : "Favorite"}
                   </button>
@@ -270,7 +381,14 @@ export default function LibraryPage() {
 
                 <div style={{ marginTop: 12 }} className="field">
                   <label>Cover image</label>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                    }}
+                  >
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/gif,image/webp"
@@ -283,12 +401,19 @@ export default function LibraryPage() {
                     <input
                       value={coverEdits[it.album.id] ?? ""}
                       onChange={(e) =>
-                        setCoverEdits((prev) => ({ ...prev, [it.album.id]: e.target.value }))
+                        setCoverEdits((prev) => ({
+                          ...prev,
+                          [it.album.id]: e.target.value,
+                        }))
                       }
                       placeholder="Image URL"
                       style={{ flex: "1 1 160px", minWidth: 0 }}
                     />
-                    <button className="btn" type="button" onClick={() => onUpdateCover(it.album.id)}>
+                    <button
+                      className="btn"
+                      type="button"
+                      onClick={() => onUpdateCover(it.album.id)}
+                    >
                       Save cover
                     </button>
                   </div>
@@ -299,14 +424,30 @@ export default function LibraryPage() {
                     <label>Your review</label>
                     <textarea
                       value={reviewDrafts[it.album.id] ?? ""}
-                      onChange={(e) => setReviewDrafts((prev) => ({ ...prev, [it.album.id]: e.target.value }))}
+                      onChange={(e) =>
+                        setReviewDrafts((prev) => ({
+                          ...prev,
+                          [it.album.id]: e.target.value,
+                        }))
+                      }
                       placeholder="What did you think? Favorite tracks? Highlights?"
                     />
                   </div>
                 </div>
 
-                <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-                  <button className="btn btn-primary" type="button" onClick={() => onSaveReview(it.album.id)}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    marginTop: 12,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={() => onSaveReview(it.album.id)}
+                  >
                     Save review
                   </button>
                 </div>

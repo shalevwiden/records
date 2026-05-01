@@ -141,98 +141,67 @@ export default function ProfilePage() {
 
   return (
     <div style={{ marginTop: 8 }}>
-      <div className="grid-2">
-        <div className="card">
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Your profile</div>
-          <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Your profile</h1>
+          <p className="page-subtitle">
             How you appear to others. Edit details and your top artists below.
-          </div>
-          <div className="hr" />
+          </p>
+        </div>
+      </div>
 
+      <div className="grid-2">
+        <div className="card card-hero">
           {error ? <div className="error">{error}</div> : null}
           {loading || !profile ? <div className="muted">Loading...</div> : null}
 
           {profile ? (
             <>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 20,
-                  flexWrap: "wrap",
-                  alignItems: "flex-start",
-                  marginTop: 8,
-                }}
-              >
-                <div
-                  style={{
-                    width: 112,
-                    height: 112,
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    background: "var(--border, #e5e5e5)",
-                    flexShrink: 0,
-                  }}
-                >
+              <div className="profile-hero">
+                <div className="profile-avatar">
                   {avatarSrc ? (
-                    <img
-                      src={avatarSrc}
-                      alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
+                    <img src={avatarSrc} alt="" />
                   ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 800,
-                        fontSize: 36,
-                        color: "#888",
-                      }}
-                    >
+                    <div className="profile-avatar-fallback">
                       {(profile.user.username[0] || "?").toUpperCase()}
                     </div>
                   )}
                 </div>
-                <div style={{ flex: "1 1 200px", minWidth: 0 }}>
-                  <div style={{ fontSize: 26, fontWeight: 900, lineHeight: 1.2 }}>{displayName}</div>
-                  <div className="muted" style={{ marginTop: 4, fontWeight: 650 }}>
-                    @{profile.user.username}
-                  </div>
-                  <div style={{ marginTop: 12, lineHeight: 1.5, fontWeight: 550, whiteSpace: "pre-wrap" }}>
+                <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+                  <h2 className="profile-name">{displayName}</h2>
+                  <div className="profile-handle">@{profile.user.username}</div>
+                  <div className="profile-bio">
                     {profile.user.bio?.trim() ? profile.user.bio : (
                       <span className="muted">No bio yet.</span>
                     )}
                   </div>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+                  <div className="profile-stats">
                     <div className="pill">{profile.followersCount} followers</div>
                     <div className="pill">{profile.followingCount} following</div>
                   </div>
                 </div>
               </div>
 
-              <div style={{ marginTop: 22, fontWeight: 900 }}>Top 5 musical artists</div>
+              <div className="hr" />
+              <div className="section-title">Top 5 musical artists</div>
               <div className="list" style={{ marginTop: 10 }}>
                 {(profile.topArtists || []).length === 0 ? (
                   <div className="muted">Add your favorite artists in the form below.</div>
                 ) : (
                   (profile.topArtists || []).map((t) => (
-                    <div key={t.slot} className="item" style={{ padding: "10px 12px" }}>
-                      <span className="muted" style={{ marginRight: 10, fontWeight: 700 }}>
-                        {t.slot}.
+                    <div key={t.slot} className="item" style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 12 }}>
+                      <span className="pill" style={{ minWidth: 32, justifyContent: "center" }}>
+                        {t.slot}
                       </span>
-                      <span style={{ fontWeight: 750 }}>{t.name}</span>
+                      <span style={{ fontWeight: 700 }}>{t.name}</span>
                     </div>
                   ))
                 )}
               </div>
 
-              <div style={{ marginTop: 22, fontWeight: 900 }}>Favorite albums</div>
-              <div className="muted" style={{ marginTop: 4, fontWeight: 600, fontSize: 13 }}>
-                Your five most recently favorited albums.
-              </div>
+              <div className="hr" />
+              <div className="section-title">Favorite albums</div>
+              <div className="section-sub">Your five most recently favorited albums.</div>
               <div className="list" style={{ marginTop: 12 }}>
                 {(profile.favorites || []).map((a) => (
                   <div key={a.id} className="item">
@@ -246,8 +215,11 @@ export default function ProfilePage() {
                 ) : null}
               </div>
 
-              <div className="hr" style={{ marginTop: 22 }} />
-              <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 10 }}>Edit profile</div>
+              <div className="hr" />
+              <div className="section-title">Edit profile</div>
+              <div className="section-sub" style={{ marginBottom: 12 }}>
+                Update your display name, bio, profile picture, and top artists.
+              </div>
               <form onSubmit={onSaveProfile}>
                 <div className="field">
                   <label>Name</label>
@@ -308,10 +280,8 @@ export default function ProfilePage() {
         </div>
 
         <div className="card">
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Friends</div>
-          <div className="muted" style={{ marginTop: 6, fontWeight: 600, fontSize: 13 }}>
-            Follow people to see their reviews in your feed.
-          </div>
+          <div className="section-title">Friends</div>
+          <div className="section-sub">Follow people to see their reviews in your feed.</div>
           <div className="hr" />
 
           <div className="field">
@@ -328,7 +298,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div style={{ marginTop: 14, fontWeight: 900 }}>Following</div>
+          <div className="hr" />
+          <div className="section-title">Following</div>
 
           {following.length === 0 && loading ? <div className="muted">Loading...</div> : null}
           {following.length === 0 && !loading ? (
