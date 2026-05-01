@@ -357,23 +357,15 @@ export default function LibraryPage() {
                   <button
                     type="button"
                     onClick={() => onToggleFavorite(it.album.id, it.isFavorite)}
-                    className={`
-                                        relative px-4 py-2 rounded-md font-semibold
-                                  transition-all duration-300 ease-out
-
-                                       ${
-                                         it.isFavorite
-                                           ? "bg-red-600 text-white"
-                                           : "bg-red-700 text-white"
-                                       }
-
-                                  shadow-[0_0_15px_rgba(255,0,0,0.6)]
-                                  hover:shadow-[0_0_25px_rgba(255,120,0,0.9)]
-                                  hover:bg-orange-500
-                                  hover:scale-105
-
-                                  active:scale-95
-                                `}
+                    className={[
+                      "relative rounded-lg px-4 py-2 font-semibold text-white",
+                      "shadow-[0_0_18px_rgba(239,68,68,0.7),0_0_6px_rgba(248,113,113,0.5)]",
+                      "transition-all duration-300 ease-out",
+                      "hover:scale-[1.02] hover:bg-orange-500 hover:text-white",
+                      "hover:shadow-[0_0_28px_rgba(251,146,60,0.9),0_0_12px_rgba(249,115,22,0.6)]",
+                      "active:scale-[.96] ",
+                      it.isFavorite ? "bg-red-600" : "bg-red-700",
+                    ].join(" ")}
                   >
                     {it.isFavorite ? "Unfavorite" : "Favorite"}
                   </button>
@@ -384,6 +376,7 @@ export default function LibraryPage() {
                   <div
                     style={{
                       display: "flex",
+                      flexDirection: "row",
                       gap: 10,
                       flexWrap: "wrap",
                       alignItems: "center",
