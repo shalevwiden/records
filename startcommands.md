@@ -5,6 +5,7 @@ docker compose up -d
 # 2) Backend
 
 # Run these from the **repository root** (the directory that contains both `backend/` and `frontend/`).
+
 # If your terminal is inside `frontend/` (for example after `cd frontend`), run `cd ..` first.
 
 python3 -m venv backend/.venv
@@ -14,10 +15,10 @@ cp backend/.env.example backend/.env 2>/dev/null || true
 python -m backend.run
 
 # 3) Frontend (new terminal)
+
 cd frontend
 npm install
 npm run dev
-
 
 # refresh port
 
@@ -37,3 +38,7 @@ docker compose down -v
 this wipes data
 docker compose down
 this keeps it
+
+### May 1
+
+Docer-compose.yml not required for local dev.

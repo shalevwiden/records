@@ -9,7 +9,41 @@ export type UserPublic = {
   createdAt: string;
 };
 
-const API_BASE = "/api";
+function apiBase(): string {
+  const raw = import.meta.env.VITE_API_BASE_URL;
+  if (raw !== undefined && String(raw).trim() !== "") {
+    return String(raw).replace(/\/$/, "");
+  }
+  return "/api";
+}
+
+const API_BASE = apiBase();
+
+function mediaBackendOrigin(): string {
+  const explicit = import.meta.env.VITE_BACKEND_ORIGIN;
+  if (explicit !== undefined && String(explicit).trim() !== "") {
+    return String(explicit).replace(/\/$/, "");
+  }
+  if (API_BASE.startsWith("http://") || API_BASE.startsWith("https://")) {
+    try {
+      return new URL(API_BASE).origin;
+    } catch {
+      /* ignore */
+    }
+  }
+  return "";
+}
+
+/** Prefix relative /uploads/ URLs when the API is on another origin (e.g. Render). */
+export function resolveMediaUrl(url: string | null | undefined): string | undefined {
+  if (url == null) return undefined;
+  const t = String(url).trim();
+  if (!t) return undefined;
+  if (t.startsWith("http://") || t.startsWith("https://")) return t;
+  const origin = mediaBackendOrigin();
+  if (origin && t.startsWith("/")) return `${origin}${t}`;
+  return t;
+}
 
 export function apiFetch<T>(
   path: string,

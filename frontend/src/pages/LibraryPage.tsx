@@ -4,6 +4,7 @@ import {
   addListening,
   getLibrary,
   patchListeningCover,
+  resolveMediaUrl,
   toggleFavorite,
   upsertReview,
   uploadImage,
@@ -312,7 +313,7 @@ export default function LibraryPage() {
                   >
                     <div className="cover-thumb">
                       {it.coverImageUrl ? (
-                        <img src={it.coverImageUrl} alt="" />
+                        <img src={resolveMediaUrl(it.coverImageUrl)} alt="" />
                       ) : null}
                     </div>
                     <div>

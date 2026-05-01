@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { followUser, getFollowing, getProfile, unfollowUser, updateProfile, uploadImage } from "../api";
+import {
+  followUser,
+  getFollowing,
+  getProfile,
+  resolveMediaUrl,
+  unfollowUser,
+  updateProfile,
+  uploadImage,
+} from "../api";
 
 type ProfileData = {
   user: {
@@ -137,7 +145,7 @@ export default function ProfilePage() {
   }
 
   const displayName = profile?.user.displayName?.trim() || profile?.user.username || "";
-  const avatarSrc = profile?.user.avatarUrl || undefined;
+  const avatarSrc = resolveMediaUrl(profile?.user.avatarUrl ?? null);
 
   return (
     <div style={{ marginTop: 8 }}>

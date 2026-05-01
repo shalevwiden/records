@@ -5,6 +5,18 @@ from pathlib import Path
 _BACKEND_DIR = Path(__file__).resolve().parent
 
 
+def _normalize_database_url(url: str) -> str:
+    """Render/Heroku-style postgres:// URLs and SQLAlchemy + psycopg3 driver scheme."""
+    u = (url or "").strip()
+    if not u:
+        return u
+    if u.startswith("postgres://"):
+        u = "postgresql://" + u[len("postgres://") :]
+    if u.startswith("postgresql://"):
+        u = "postgresql+psycopg://" + u[len("postgresql://") :]
+    return u
+
+
 class Config:
     # Flask
     SECRET_KEY = os.getenv("RECORDS_SECRET_KEY", "dev-secret-change-me")
@@ -14,11 +26,13 @@ class Config:
     JWT_TOKEN_LOCATION = ["headers"]
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
 
-    # Database
-    DATABASE_URL = os.getenv(
-        "DATABASE_URL",
-        # Default for local docker-compose
-        "postgresql+psycopg://records:records@localhost:5432/records",
+    # Database (Render provides DATABASE_URL; normalize for psycopg3)
+    DATABASE_URL = _normalize_database_url(
+        os.getenv(
+            "DATABASE_URL",
+            # Default for local docker-compose
+            "postgresql+psycopg://records:records@localhost:5432/records",
+        )
     )
 
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
