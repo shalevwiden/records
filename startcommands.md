@@ -42,3 +42,17 @@ this keeps it
 ### May 1
 
 Docer-compose.yml not required for local dev.
+
+**To set up database on Render**
+
+export DATABASE_URL='externaldatabaseurl'
+❯ python -c "
+from backend.app import create_app
+from backend.extensions import db
+import backend.models
+app = create_app()
+with app.app_context():
+db.create_all()
+print('done')
+"
+done
