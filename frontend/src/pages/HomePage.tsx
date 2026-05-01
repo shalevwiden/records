@@ -16,12 +16,12 @@ const BOBBING_ALBUMS: {
   // albumId must match AlbumId in the list below
   albumId: (typeof albums)[number]["id"];
 }[] = [
-  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumId: "1989" },
+  { top: "8%", left: "4%", r: "-12deg", d: "0s", albumId: "igor" },
   { top: "18%", left: "78%", r: "8deg", d: "0.4s", albumId: "deadbeat" },
   { top: "52%", left: "8%", r: "6deg", d: "0.8s", albumId: "abbeyroad" },
-  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumId: "igor" },
+  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumId: "1989" },
   { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumId: "currents" },
-  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumId: "pinktape" },
+  { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumId: "ghoststories" },
   { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumId: "ye" },
 ];
 
