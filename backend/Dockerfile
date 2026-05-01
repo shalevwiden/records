@@ -33,12 +33,6 @@ USER appuser
 EXPOSE 5000
 
 # Render injects PORT; default 5000 for local runs.
-CMD ["sh", "-c", \
-    "exec gunicorn \
-      --bind 0.0.0.0:${PORT:-5000} \
-      --workers ${WEB_CONCURRENCY:-2} \
-      --threads ${GUNICORN_THREADS:-4} \
-      --timeout 120 \
-      --access-logfile - \
-      --error-logfile - \
-      backend.wsgi:app"]
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT:-5000} backend.app:app"]
+
+
