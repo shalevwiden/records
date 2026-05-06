@@ -57,12 +57,13 @@ export default function HomePage() {
           </div>
           <div className="landing-hero-inner">
             <h1 id="landing-hero-title">
-              Review your favorite albums. Catalog everything you listen to. Share your passion for music.
+              Review your favorite albums. Catalog everything you listen to.
+              Share your passion for music.
             </h1>
             <p className="landing-hero-lead">
-              Records is a home for your listening history: log and review albums, see what your friends are listening to,
-              and keep a running history of what you have on repeat.
-              
+              Records is a home for your listening history: log and review
+              albums, see what your friends are listening to, and keep a running
+              history of your favorite music.
             </p>
             <div className="landing-hero-cta">
               {token ? (
@@ -80,7 +81,7 @@ export default function HomePage() {
                 </>
               )}
             </div>
-            <p className="landing-hero-note">For music lovers. Built for focus, not for endless scrolling.</p>
+            <p className="landing-hero-note">Built for music appreciation.</p>
           </div>
         </section>
 
@@ -89,7 +90,11 @@ export default function HomePage() {
             <h2 id="popular-heading">Popular this week</h2>
             <div className="landing-scroll-row" role="list">
               {albums.map((album) => (
-                <article key={album.id} className="landing-card" role="listitem">
+                <article
+                  key={album.id}
+                  className="landing-card"
+                  role="listitem"
+                >
                   <div
                     className="landing-card-cover"
                     style={{ backgroundImage: `url(${album.cover})` }}
