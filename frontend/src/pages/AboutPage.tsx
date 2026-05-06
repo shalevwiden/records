@@ -32,14 +32,14 @@ export default function AboutPage() {
             shelf. Follow your friends and see what they are listening to and
             what they recommend.
           </p>
-          <h2>values</h2>
+          <h2>Values</h2>
           <p>
             We care about engaging with music more intentionally. Records is
             built around the idea of finishing albums, sitting with them, and
             forming your own perspective.
             <br />
             <br />
-            Appreciating music as a form of art. noise.
+            Appreciating music as a form of art.
             <br />
             <br />
             We also value simplicity. Your profile isn’t meant to be a
