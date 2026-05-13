@@ -1,3 +1,5 @@
+// images.ts
+
 import smallLogo from "./images/smalllogo.png";
 import bigLogo from "./images/biglogo.png";
 import smallLogom12 from "./images/may12logo.png";
@@ -12,14 +14,22 @@ import ye from "../assets/images/albums/ye.jpg";
 import darkSideOfTheMoon from "../assets/images/albums/darksideofthemoon.png";
 import pinkTape from "../assets/images/albums/pinktape.png";
 import ghostStories from "../assets/images/albums/ghoststories.png";
+import graduation from "../assets/images/albums/graduation.jpeg";
 
-import graduation from "../assets/images/graduation.png";
+// missing albums
+import thriller from "../assets/images/albums/thriller.png";
+import hitMeHardAndSoft from "../assets/images/albums/hitmehardandsoft.png";
+import theArtOfLoving from "../assets/images/albums/theartofloving.png";
+import theRomantic from "../assets/images/albums/theromantic.png";
+import debiTirar from "../assets/images/albums/debitirar.png";
+import decide from "../assets/images/albums/decide.png";
 
 export const images = {
   logos: {
     small: smallLogom12,
     big: bigLogo,
   },
+
   albums: {
     igor,
     deadbeat,
@@ -31,6 +41,14 @@ export const images = {
     pinkTape,
     ghostStories,
     graduation,
+
+    // added
+    thriller,
+    hitMeHardAndSoft,
+    theArtOfLoving,
+    theRomantic,
+    debiTirar,
+    decide,
   },
 } as const;
 

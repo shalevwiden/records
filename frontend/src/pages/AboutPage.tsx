@@ -1,6 +1,7 @@
 import React from "react";
 import LandingNav from "../components/LandingNav";
 import SiteFooter from "../components/SiteFooter";
+import { images } from "../assets/images";
 import "../landing.css";
 
 export default function AboutPage() {
@@ -8,6 +9,14 @@ export default function AboutPage() {
     <div className="landing-page">
       <LandingNav />
       <main className="landing-main">
+        <div className="landing-about-logo-wrap">
+          <img
+            className="landing-about-logo-img"
+            src={images.logos.big}
+            alt="Records"
+            decoding="async"
+          />
+        </div>
         <article className="landing-about">
           <h1>About Records</h1>
           <p className="lead">

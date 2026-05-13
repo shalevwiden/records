@@ -19,10 +19,22 @@ const BOBBING_ALBUMS: {
   { top: "8%", left: "4%", r: "-12deg", d: "0s", albumId: "igor" },
   { top: "18%", left: "78%", r: "8deg", d: "0.4s", albumId: "deadbeat" },
   { top: "52%", left: "8%", r: "6deg", d: "0.8s", albumId: "abbeyroad" },
-  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumId: "1989" },
+  { top: "62%", left: "82%", r: "-9deg", d: "1.1s", albumId: "thriller" },
   { top: "28%", left: "58%", r: "14deg", d: "0.2s", albumId: "currents" },
   { top: "72%", left: "38%", r: "-7deg", d: "1.4s", albumId: "ghoststories" },
   { top: "12%", left: "42%", r: "-5deg", d: "0.6s", albumId: "ye" },
+];
+
+// change which albums appear in "Popular this week" (order = scroll order)
+const POPULAR_THIS_WEEK_ALBUM_IDS: (typeof albums)[number]["id"][] = [
+  "thriller",
+  "hitmehardandsoft",
+  "theromantic",
+  "theartofloving",
+  "debitirar",
+  "decide",
+  "graduation",
+  "deadbeat",
 ];
 
 export default function HomePage() {
@@ -89,22 +101,26 @@ export default function HomePage() {
           <div className="landing-section-inner">
             <h2 id="popular-heading">Popular this week</h2>
             <div className="landing-scroll-row" role="list">
-              {albums.map((album) => (
-                <article
-                  key={album.id}
-                  className="landing-card"
-                  role="listitem"
-                >
-                  <div
-                    className="landing-card-cover"
-                    style={{ backgroundImage: `url(${album.cover})` }}
-                    role="img"
-                    aria-label={`${album.name} by ${album.artist}`}
-                  />
-                  <h3 className="landing-card-title">{album.name}</h3>
-                  <p className="landing-card-artist">{album.artist}</p>
-                </article>
-              ))}
+              {POPULAR_THIS_WEEK_ALBUM_IDS.map((albumId) => {
+                const album = albumMap[albumId];
+                if (!album) return null;
+                return (
+                  <article
+                    key={album.id}
+                    className="landing-card"
+                    role="listitem"
+                  >
+                    <div
+                      className="landing-card-cover"
+                      style={{ backgroundImage: `url(${album.cover})` }}
+                      role="img"
+                      aria-label={`${album.name} by ${album.artist}`}
+                    />
+                    <h3 className="landing-card-title">{album.name}</h3>
+                    <p className="landing-card-artist">{album.artist}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
