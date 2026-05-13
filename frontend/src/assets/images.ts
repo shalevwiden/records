@@ -1,5 +1,8 @@
 import smallLogo from "./images/smalllogo.png";
 import bigLogo from "./images/biglogo.png";
+import smallLogom12 from "./images/may12logo.png";
+
+// now albums
 import igor from "../assets/images/albums/igor.jpg";
 import deadbeat from "../assets/images/albums/deadbeat.webp";
 import abbeyroad from "../assets/images/albums/abbeyroad.jpg";
@@ -10,9 +13,11 @@ import darkSideOfTheMoon from "../assets/images/albums/darksideofthemoon.png";
 import pinkTape from "../assets/images/albums/pinktape.png";
 import ghostStories from "../assets/images/albums/ghoststories.png";
 
+import graduation from "../assets/images/graduation.png";
+
 export const images = {
   logos: {
-    small: smallLogo,
+    small: smallLogom12,
     big: bigLogo,
   },
   albums: {
@@ -25,8 +30,8 @@ export const images = {
     darkSideOfTheMoon,
     pinkTape,
     ghostStories,
+    graduation,
   },
 } as const;
 
 export type ImageKey = keyof typeof images;
-

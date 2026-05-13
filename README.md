@@ -44,3 +44,15 @@ Frontend runs on `http://localhost:5173`.
 
 - Base path: `http://localhost:5000/api`
 
+### Ok April 28th
+
+Now my notes.
+
+Already created startcommands.md
+
+Now I'm gonna create an assets folder, and have images in them.
+
+### May 12
+
+New logo.
+Album covers are sourced from albums folder name
