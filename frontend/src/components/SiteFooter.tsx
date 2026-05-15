@@ -57,7 +57,7 @@ export default function SiteFooter() {
           </ul>
         </div>
         <div className="landing-footer-col">
-          <h3>Social</h3>
+          <h3>Social (currently non existent)</h3>
           <div className="landing-socials">
             <SocialIcon href="https://twitter.com" label="Records on X">
               <svg viewBox="0 0 24 24" aria-hidden>

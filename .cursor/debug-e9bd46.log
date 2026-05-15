@@ -22,3 +22,4 @@
 {"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "before create_access_token", "data": {"user_id": 1}, "timestamp": 1777667097952, "hypothesisId": "H3"}
 {"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "after create_access_token", "data": {"token_len": 325}, "timestamp": 1777667097952, "hypothesisId": "H3"}
 {"sessionId": "e9bd46", "location": "backend/routes/api.py:login", "message": "to_public_dict ok", "data": {"keys": ["id", "username", "displayName", "bio", "avatarUrl", "createdAt"]}, "timestamp": 1777667097952, "hypothesisId": "H4"}
+{"sessionId":"e9bd46","location":"frontend/src/api.ts:apiFetch","message":"login response not ok","data":{"status":500,"bodyKeys":[]},"timestamp":1778732655013,"hypothesisId":"H-client"}

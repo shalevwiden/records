@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { images } from "../assets/images";
 
 export default function LoginPage() {
   const { login, token, ready } = useAuth();
@@ -30,9 +31,20 @@ export default function LoginPage() {
   return (
     <div className="container">
       <div className="card" style={{ maxWidth: 480, margin: "20px auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 10,
+          }}
+        >
           <Link to="/" aria-label="Records home" style={{ display: "flex" }}>
-            <div className="logo" />
+            <img
+              className="logo-image"
+              src={images.logos.small}
+              alt="Records"
+            />{" "}
           </Link>
           <div>
             <div style={{ fontSize: 20, fontWeight: 800 }}>Welcome back</div>
@@ -47,7 +59,11 @@ export default function LoginPage() {
         <form onSubmit={onSubmit} style={{ marginTop: 14 }}>
           <div className="field">
             <label>Email or username</label>
-            <input value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} required />
+            <input
+              value={emailOrUsername}
+              onChange={(e) => setEmailOrUsername(e.target.value)}
+              required
+            />
           </div>
           <div className="field" style={{ marginTop: 10 }}>
             <label>Password</label>
@@ -59,8 +75,19 @@ export default function LoginPage() {
             />
           </div>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
-            <button className="btn btn-primary" type="submit" disabled={loading}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              marginTop: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loading}
+            >
               {loading ? "Signing in..." : "Sign in"}
             </button>
             <Link className="btn" to="/signup">
@@ -72,4 +99,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
